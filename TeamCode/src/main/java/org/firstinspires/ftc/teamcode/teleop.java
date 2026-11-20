@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+
 @TeleOp
 public class teleop extends LinearOpMode {
     @Override
@@ -27,9 +29,11 @@ public class teleop extends LinearOpMode {
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
-        DcMotor intakeMotor = hardwareMap.dcMotor.get("raymond");
-        CRServo intake1 = hardwareMap.crservo.get("evan");
-        CRServo intake2 = hardwareMap.crservo.get("veer");
+        DcMotor intakeMotor = hardwareMap.dcMotor.get("liam");
+        DcMotor transferMotor = hardwareMap.dcMotor.get("raymond");
+        DcMotor inputMotor = hardwareMap.dcMotor.get("evan");
+        DcMotor launcherMotor = hardwareMap.dcMotor.get("veer");
+        CRServo aimbot = hardwareMap.crservo.get("mateo");
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
@@ -75,39 +79,51 @@ public class teleop extends LinearOpMode {
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
 
-
             // intake
-            if (currentGamepad2.a && !previousGamepad2.a) {
-                intakeMotor.setPower(-1);
-            }
-
-            // stop intake/outtake
-            if (currentGamepad2.b && !previousGamepad1.b) {
-                intakeMotor.setPower(0);
-            }
-
-            // Move spindexer down one slot
-            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
-                intake1.setPower(-1);
-                intake2.setPower(1);
-            }
-
-            // Move spindexer up one slot
-            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right) {
-                intake1.setPower(0);
-                intake2.setPower(0);
-            }
-
-            // rotate spindexer down
             if (gamepad2.left_trigger > 0) {
                 intakeMotor.setPower(-gamepad2.left_trigger);
+                transferMotor.setPower(-gamepad2.left_trigger);
             }
 
-            // rotate spindexer up
+            // outtake
             if (gamepad2.right_trigger > 0) {
                 intakeMotor.setPower(gamepad2.right_trigger);
+                transferMotor.setPower(gamepad2.left_trigger);
             }
 
+            // push ball into launcher
+            if (currentGamepad2.x && !previousGamepad2.x) {
+                inputMotor.setPower(-0.8);
+            }
+
+            // stop push ball into launcher
+            if (currentGamepad2.y && !previousGamepad2.y) {
+                inputMotor.setPower(0);
+            }
+
+            // start launcher
+            if (currentGamepad2.a && !previousGamepad1.a) {
+                launcherMotor.setPower(1);
+            }
+
+            // stop launcher
+            if (currentGamepad2.b && !previousGamepad1.b) {
+                launcherMotor.setPower(0);
+            }
+
+            // Move turret left
+            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left) {
+                aimbot.setPower(1);
+                wait(100);
+                aimbot.setPower(0);
+            }
+
+            // Move turret right
+            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right) {
+                aimbot.setPower(-1);
+                wait(100);
+                aimbot.setPower(0);
+            }
 
             frontLeftMotor.setPower(frontLeftPower);
             backLeftMotor.setPower(backLeftPower);
